@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+  <title>쉼표숲</title>
+  <meta name="description" content="누구나 잠깐 쉬어 가는 온라인 숲. 숨 고르고, 풍경 울리고, 소원 하나 띄우고 가세요.">
+  <meta name="theme-color" content="#1b2433">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="쉼표숲">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body data-room="lake">
+  <div id="app">
+    <header id="top">
+      <div class="brand"><span class="logo">,</span> 쉼표숲</div>
+      <div class="count" id="count" aria-live="polite">0명이 쉬는 중</div>
+      <div class="top-buttons">
+        <button id="soundBtn" class="icon" aria-label="소리 켜기" title="소리">🔇</button>
+        <button id="closetBtn" class="icon" aria-label="옷장" title="옷장">👕</button>
+        <button id="installBtn" class="icon" aria-label="앱 설치" title="휴대폰에 설치" hidden>📲</button>
+        <button id="settingsBtn" class="icon" aria-label="설정" title="설정">⚙️</button>
+      </div>
+    </header>
+
+    <nav id="rooms" aria-label="공간 고르기"></nav>
+
+    <main id="scene" aria-label="숲 속 공간">
+      <div class="sky"><div class="moon"></div><div class="stars"></div></div>
+      <div id="wishes" aria-hidden="true"></div>
+      <div class="ground"></div>
+      <div class="feature"></div>
+      <div id="people"></div>
+      <div id="breathCount" class="breath-count" hidden></div>
+    </main>
+
+    <div id="actions">
+      <button data-act="breathe"><span>🌬️</span>숨 고르기</button>
+      <button data-act="chime"><span>🎐</span>풍경 울리기</button>
+      <button data-act="wish"><span>🏮</span>소원 띄우기</button>
+      <button data-act="nod"><span>🙇</span>인사하기</button>
+    </div>
+
+    <section id="chat" aria-label="이야기 나누기">
+      <div id="messages" role="log" aria-live="polite"></div>
+      <form id="chatForm" autocomplete="off">
+        <input id="chatInput" maxlength="120" placeholder="다정한 말 한마디…" enterkeyhint="send" aria-label="채팅 입력">
+        <button type="submit">보내기</button>
+      </form>
+      <p class="rule">욕설·연락처는 자동으로 가려져요. 이름이나 사는 곳 같은 개인정보는 적지 말아 주세요.</p>
+    </section>
+  </div>
+
+  <!-- 숨 고르기 -->
+  <div id="breath" class="overlay" hidden>
+    <div class="breath-circle"><div id="breathText">편하게 앉아요</div></div>
+    <p id="breathSub">세 번만 같이 숨 쉬어요</p>
+    <button id="breathStop" class="ghost">그만하기</button>
+  </div>
+
+  <!-- 소원 적기 -->
+  <dialog id="wishDialog">
+    <form method="dialog" id="wishForm">
+      <h2>🏮 소원 띄우기</h2>
+      <p>등불에 적은 소원은 이 공간 사람들 하늘에 잠깐 떠올랐다가 사라져요. 이름은 안 붙어요.</p>
+      <input id="wishInput" maxlength="40" placeholder="예) 내일은 푹 잘 수 있기를" required>
+      <div class="row"><button value="cancel" class="ghost">닫기</button><button value="ok" id="wishOk">띄우기</button></div>
+    </form>
+  </dialog>
+
+  <!-- 옷장·상점 -->
+  <dialog id="closet">
+    <form method="dialog">
+      <h2>👕 옷장</h2>
+      <div class="closet-preview" id="closetPreview"></div>
+      <div id="itemGrid" class="item-grid"></div>
+      <p class="small">털모자·귀도리는 준비 중이에요. 결제가 열리면 알려 드릴게요.</p>
+      <div class="row"><button value="close">닫기</button></div>
+    </form>
+  </dialog>
+
+  <!-- 설정 -->
+  <dialog id="settings">
+    <form method="dialog" id="settingsForm">
+      <h2>⚙️ 설정</h2>
+      <label>내 이름 (12자까지)<input id="nameInput" maxlength="12"></label>
+      <label>내 색
+        <div id="colorRow" class="color-row"></div>
+      </label>
+      <label>소리 크기<input id="volume" type="range" min="0" max="100"></label>
+      <p class="small">쉼표숲은 가입이 없고, 이름·연락처·위치를 모으지 않아요. 대화는 서버 메모리에 최근 것만 잠깐 남고 저장되지 않아요.</p>
+      <div class="row"><button value="cancel" class="ghost">닫기</button><button value="ok">저장</button></div>
+    </form>
+  </dialog>
+
+  <!-- 사람 눌렀을 때 -->
+  <div id="personMenu" class="person-menu" hidden>
+    <div id="personName"></div>
+    <button id="reportBtn" class="danger">불편해요 · 신고</button>
+  </div>
+
+  <div id="toast" role="status"></div>
+
+  <script src="/items.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>
