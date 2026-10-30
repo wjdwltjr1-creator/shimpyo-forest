@@ -160,7 +160,7 @@ wss.on('connection', (ws) => {
     return ws.close();
   }
   const u = {
-    id: nextId++, ws, room: null, seat: 0, last: {}, mutedUntil: 0, msgs: [],
+    id: nextId++, ws, room: null, seat: 0, last: {}, mutedUntil: 0, msgs: [], lastSeen: Date.now(),
     name: `${pick(ADJ)} ${pick(NOUN)}`, color: pick(COLORS), outfit: { body: 'robe', feet: 'shoes' }
   };
   ws.on('message', (raw) => {
@@ -169,9 +169,13 @@ wss.on('connection', (ws) => {
     u.msgs = u.msgs.filter((t) => now - t < 5000);
     u.msgs.push(now);
     if (u.msgs.length > 30) return ws.close();
+    u.lastSeen = now;
     let m;
     try { m = JSON.parse(raw); } catch { return; }
     if (!m || typeof m.t !== 'string') return;
+    if (m.t === 'ping') return;
+    // 배포 서버 앞단(프록시)이 끊김을 늦게 알려 주므로, 나갈 때 직접 알린다
+    if (m.t === 'bye') { leaveRoom(u); return ws.close(); }
 
     if (m.t === 'hello') {
       if (typeof m.name === 'string') {
@@ -237,16 +241,15 @@ wss.on('connection', (ws) => {
   });
   ws.on('close', () => { leaveRoom(u); reports.delete(u.id); });
   ws.on('error', () => {});
+  ws._user = u;
 });
 
-// 끊긴 연결 정리
+// 끊긴 연결 정리: 화면은 25초마다 ping을 보낸다. 75초 넘게 소식이 없으면 나간 것으로 본다.
 setInterval(() => {
+  const now = Date.now();
   for (const ws of wss.clients) {
-    if (ws._dead) { ws.terminate(); continue; }
-    ws._dead = true;
-    ws.ping();
+    if (ws._user && now - ws._user.lastSeen > 75000) { leaveRoom(ws._user); ws.terminate(); }
   }
-}, 30000);
-wss.on('connection', (ws) => { ws.on('pong', () => { ws._dead = false; }); });
+}, 15000);
 
 server.listen(PORT, () => console.log(`쉼표숲 열림: http://localhost:${PORT}`));

@@ -198,6 +198,8 @@
 
   // ── 연결 ──
   function send(msg) { if (state.ws && state.ws.readyState === 1) state.ws.send(JSON.stringify(msg)); }
+  setInterval(() => send({ t: 'ping' }), 25000);
+  window.addEventListener('pagehide', () => send({ t: 'bye' }));
   function connect() {
     const ws = new WebSocket((location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host);
     state.ws = ws;

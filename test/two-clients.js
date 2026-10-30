@@ -66,7 +66,7 @@ function client(name) {
   await b.wait((m) => m.t === 'notice' && m.text.includes('신고'));
   ok('신고 접수');
 
-  b.ws.close();
+  b.send({ t: 'bye' });
   await a.wait((m) => m.t === 'leave' && m.id === rb.me.id);
   ok('B가 나가면 A 화면에서 사라짐');
   a.ws.close();
